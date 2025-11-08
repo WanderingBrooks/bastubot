@@ -1,20 +1,30 @@
 # sauna-stalker
 
+A small TypeScript utility that automatically checks your apartment building’s sauna booking calendar for any available slots in the next two weeks. This utility is written for the Aptus app provided by Säkerhetsintergrering.
+
+If a slot opens up, it sends you an email notification so you can book it.
+
+This script is designed to run automatically on a Raspberry Pi using a cron job, making it a set-and-forget sauna slot watcher.
+
 ## Install
 
 1. `nvm use`
 2. `npm install`
 
+## Environment variables
+
+See .env.example.
+
 ## Run
 
-- `npm run dev`
+1. `npm run dev`
 
 ## Build
 
 1. `npm run build`
 2. `npm run start`
 
-## Run on raspberry pi
+## Setup on a raspberry pi
 
 1. Install chromium `sudo apt install chromium-browser chromium-codecs-ffmpeg`
 2. Install packages `npm install`
@@ -33,9 +43,13 @@
     15,45 7-22 * * * (. ~/Desktop/sauna-stalker/cronjob.env.sh; ~/Desktop/sauna-stalker/checkNextWeek.sh)
    ```
 
-   - For a few reasons,
-     1. I want to know if any evening slots open up so I want it to run often.
-     2. At 31 minutes because after 30 minutes if a slot was not used it's opened for everyone so this will alert if we can nab a slot someone didn't use.
-     3. Both are run every 30 minutes but offset to both try not to overload the pi or send a bunch of requests to the website at the same time.
+   - Why this schedule?
+     1. Runs every 30 minutes, offset for balance.
+     2. :31 minute mark catches skipped slots (released 30 min after no-shows).
+     3. Limits requests to the booking app so requests don't get blocked.
 
-6. Logs should end up in `~/Desktop/sauna-stalker/file.log`
+6. Logs will end up in `~/Desktop/sauna-stalker/file.log`
+
+## Email sending
+
+I currenlty use Gmail to send emails from and to the same email. This was quite easy to setup and works quite well. I followed [this guide](https://medium.com/@y.mehnati_49486/how-to-send-an-email-from-your-gmail-account-with-nodemailer-837bf09a7628).
