@@ -1,5 +1,5 @@
 {
-  "name": "sauna-stalker",
+  "name": "bastubot",
   "module": "index.ts",
   "dev": "tsc --watch",
   "scripts": {
