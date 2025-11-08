@@ -1,6 +1,6 @@
-# bastubot
+# bastubot 🧖🗓️
 
-Bastu means Sauna in Swedish.
+Bastu (Swedish for sauna).
 
 A small TypeScript utility that automatically checks your apartment building’s sauna booking calendar for any available slots in the next two weeks. This utility is written for the Aptus app provided by Säkerhetsintergrering.
 
