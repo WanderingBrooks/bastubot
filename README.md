@@ -6,6 +6,8 @@ A small TypeScript utility that automatically checks your apartment building’s
 
 If a slot opens up, it sends you an email notification so you can book it.
 
+The script will also check if you have any current bookings. If so the day of your booking a reminder email will be sent to make sure you remember it.
+
 This script is designed to run automatically on a Raspberry Pi using a cron job, making it a set-and-forget sauna slot watcher.
 
 ## Install
@@ -19,7 +21,7 @@ See .env.example.
 
 ## Run
 
-1. `npm run dev`
+1. `npm run dev thisWeek` or `npm run dev nextWeek`
 
 ## Build
 
@@ -54,4 +56,4 @@ See .env.example.
 
 ## Email sending
 
-I currenlty use Gmail to send emails from and to the same email. This was quite easy to setup and works quite well. I followed [this guide](https://medium.com/@y.mehnati_49486/how-to-send-an-email-from-your-gmail-account-with-nodemailer-837bf09a7628).
+I currenlty use Gmail to send emails from and to the same email. This was quite easy to setup and works quite well. I followed [this guide](https://archive.ph/x3R1S).

@@ -21,7 +21,7 @@ if (!SAUNA_URL) {
   throw new Error('Sauna url is required');
 }
 
-const getDateToCheck = (week: Week) => {
+const getDateToCheck = ({ week }: { week: Week }) => {
   if (week === 'thisWeek') {
     return new Date().toISOString().split('T')[0];
   }
@@ -46,7 +46,7 @@ const getDateToCheck = (week: Week) => {
   throw new Error(`Unspported week type: "${week}"`);
 };
 
-const checkSaunaAvailability = async (week: Week) => {
+const checkSaunaAvailability = async ({ week }: { week: Week }) => {
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch(
     IS_RASPBERRY_PI === 'true'
@@ -91,7 +91,7 @@ const checkSaunaAvailability = async (week: Week) => {
 
   log('Menu appeared after login');
 
-  const dateToCheck = getDateToCheck(week);
+  const dateToCheck = getDateToCheck({ week });
 
   // Navigate to the sauna booking page
   await page.goto(`${SAUNA_URL}&passDate=${dateToCheck}`);
@@ -108,6 +108,7 @@ const checkSaunaAvailability = async (week: Week) => {
           // Filter our non timeslot items
           .filter((child) => child.classList.contains('interval'))
           .map((child) => ({
+            isBookedByCurrentUser: child.classList.contains('own'),
             isAvailable: child.classList.contains('bookable'),
             time: (
               Array.from(child?.children)?.[0] as HTMLElement
@@ -125,7 +126,14 @@ const checkSaunaAvailability = async (week: Week) => {
 
   log(`extracted: ${JSON.stringify(slotStatuses, null, 2)}`);
 
-  return slotStatuses;
+  return {
+    dayOfTheWeek: new Date().getDay(),
+    slots: slotStatuses,
+  };
 };
 
+type SaunaStatuses = Awaited<ReturnType<typeof checkSaunaAvailability>>;
+
 export { checkSaunaAvailability };
+
+export type { SaunaStatuses };

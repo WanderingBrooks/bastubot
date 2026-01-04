@@ -19,4 +19,4 @@ if (!week) {
   );
 }
 
-run(week).then(() => process.exit(0));
+run({ week }).then(() => process.exit(0));
