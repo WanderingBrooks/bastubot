@@ -3,15 +3,15 @@ import { readJsonFile, writeJsonFile } from './utils';
 
 import { Week, AvailableSlots } from './types';
 import { log } from 'console';
+import { SaunaStatuses } from './pageScraper';
 
-const compareResultWithPreviousRun = async (
-  week: Week,
-  openSixOrEightSlots: AvailableSlots,
-) => {
-  log(
-    `Comparing previous run against current open slots: ${JSON.stringify(openSixOrEightSlots, null, 2)}`,
-  );
-
+const getPreviousRunFileAndSaveNewContents = async ({
+  week,
+  slotStatuses,
+}: {
+  week: Week;
+  slotStatuses: SaunaStatuses;
+}) => {
   const previousRunFilePath = path.resolve(
     __dirname,
     `../${week}-previousRun.json`,
@@ -19,22 +19,36 @@ const compareResultWithPreviousRun = async (
 
   const previousRun = (await readJsonFile(
     previousRunFilePath,
-  )) as AvailableSlots | null;
+  )) as SaunaStatuses | null;
 
   // Update previous run json with the current result
   await writeJsonFile(
     previousRunFilePath,
-    JSON.stringify(openSixOrEightSlots, null, 2),
+    JSON.stringify(slotStatuses, null, 2),
   );
 
-  if (!previousRun) {
+  return previousRun;
+};
+
+const compareResultWithPreviousRun = async ({
+  openSixOrEightSlots,
+  openSixOrEightSlotsInPreviousRun,
+}: {
+  openSixOrEightSlots: AvailableSlots;
+  openSixOrEightSlotsInPreviousRun: AvailableSlots | null;
+}) => {
+  log(
+    `Comparing previous run against current open slots: ${JSON.stringify(openSixOrEightSlots, null, 2)}`,
+  );
+
+  if (!openSixOrEightSlotsInPreviousRun) {
     log('No previous run found');
 
     return openSixOrEightSlots;
   }
 
   log(
-    `Found previous run with contents: ${JSON.stringify(previousRun, null, 2)}`,
+    `Found previous run with contents: ${JSON.stringify(openSixOrEightSlotsInPreviousRun, null, 2)}`,
   );
 
   return Object.keys(openSixOrEightSlots).reduce<AvailableSlots>(
@@ -42,7 +56,8 @@ const compareResultWithPreviousRun = async (
       const dayOfTheWeek = Number.parseInt(dayOfTheWeekString, 10);
 
       const slotsInWeek = openSixOrEightSlots[dayOfTheWeek];
-      const slotsInWeekPreviousRun = previousRun[dayOfTheWeek];
+      const slotsInWeekPreviousRun =
+        openSixOrEightSlotsInPreviousRun[dayOfTheWeek];
 
       if (!Array.isArray(slotsInWeek)) {
         return slotsThatHaveNotBeenAlertedYet;
@@ -71,4 +86,4 @@ const compareResultWithPreviousRun = async (
   );
 };
 
-export { compareResultWithPreviousRun };
+export { compareResultWithPreviousRun, getPreviousRunFileAndSaveNewContents };

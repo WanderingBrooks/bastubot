@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 
 import log, { fullRunLog } from './log';
-import { AvailableSlots, Week } from './types';
+import { AvailableSlots, Slot, Week } from './types';
 
 const { EMAIL_SERVICE, EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD } =
   process.env;
@@ -60,7 +60,7 @@ const daysOfTheWeek = [
   'sunday',
 ];
 
-const getHeader = (week: Week) => {
+const getHeader = ({ week }: { week: Week }) => {
   if (week === 'thisWeek') {
     return `Sauna slot available this week!`;
   }
@@ -72,7 +72,7 @@ const getHeader = (week: Week) => {
   return `Got a weird week in [getHeader]: "${week}"`;
 };
 
-const getLogHeader = (week: Week) => {
+const getLogHeader = ({ week }: { week: Week }) => {
   if (week === 'thisWeek') {
     return `This week check log`;
   }
@@ -84,7 +84,11 @@ const getLogHeader = (week: Week) => {
   return `Got a weird week in [getLogHeader]: "${week}"`;
 };
 
-const prepareSlotsForEmail = (openSixOrEightSlots: AvailableSlots) =>
+const prepareSlotsForEmail = ({
+  openSixOrEightSlots,
+}: {
+  openSixOrEightSlots: AvailableSlots;
+}) =>
   Object.keys(openSixOrEightSlots).reduce((aggregatedText, day) => {
     const keyAsNumber = Number.parseInt(day, 10);
     const dayOfTheWeek = daysOfTheWeek[keyAsNumber];
@@ -97,20 +101,23 @@ const prepareSlotsForEmail = (openSixOrEightSlots: AvailableSlots) =>
     return `${aggregatedText}${newMessage}\n`;
   }, '');
 
-const alertSaunaAvailability = (
-  week: Week,
-  openSixOrEightSlots: AvailableSlots,
-) => {
+const alertSaunaAvailability = ({
+  week,
+  openSixOrEightSlots,
+}: {
+  week: Week;
+  openSixOrEightSlots: AvailableSlots;
+}) => {
   log(
     `Preparing to send email with slots: ${JSON.stringify(openSixOrEightSlots, null, 2)}`,
   );
 
-  const message = prepareSlotsForEmail(openSixOrEightSlots);
+  const message = prepareSlotsForEmail({ openSixOrEightSlots });
 
   log(`Sending email alerting sauna is available: "${message}"`);
 
   return transporter
-    .sendMail({ ...mailOptions, text: message, subject: getHeader(week) })
+    .sendMail({ ...mailOptions, text: message, subject: getHeader({ week }) })
     .then((result) => {
       log('Successfully sent email');
 
@@ -118,11 +125,37 @@ const alertSaunaAvailability = (
     });
 };
 
-const sendRunLog = (week: Week) =>
+const alertUserBookingToday = ({
+  slotsUserHasBookedToday,
+}: {
+  slotsUserHasBookedToday: Slot[];
+}) => {
+  const timesUserHasBookedToday = slotsUserHasBookedToday
+    .map((slot) => slot.time)
+    .join(', ');
+
+  log(
+    `Preparing to send email alerting user has booking today for slot: ${timesUserHasBookedToday}`,
+  );
+
+  return transporter
+    .sendMail({
+      ...mailOptions,
+      text: `You have a booking today (${timesUserHasBookedToday})`,
+      subject: `Sauna Booking Alert Today - ${timesUserHasBookedToday}`,
+    })
+    .then((result) => {
+      log('Successfully sent email');
+
+      return result;
+    });
+};
+
+const sendRunLog = ({ week }: { week: Week }) =>
   transporter.sendMail({
     ...mailOptions,
     text: fullRunLog,
-    subject: getLogHeader(week),
+    subject: getLogHeader({ week }),
   });
 
-export { alertSaunaAvailability, sendRunLog };
+export { alertSaunaAvailability, alertUserBookingToday, sendRunLog };
