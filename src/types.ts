@@ -1,4 +1,5 @@
 type Slot = {
+  isBookedByCurrentUser: boolean;
   isAvailable: boolean;
   time: string;
 };

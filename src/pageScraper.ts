@@ -108,6 +108,7 @@ const checkSaunaAvailability = async (week: Week) => {
           // Filter our non timeslot items
           .filter((child) => child.classList.contains('interval'))
           .map((child) => ({
+            isBookedByCurrentUser: child.classList.contains('own'),
             isAvailable: child.classList.contains('bookable'),
             time: (
               Array.from(child?.children)?.[0] as HTMLElement
