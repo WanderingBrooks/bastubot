@@ -6,7 +6,7 @@ A small TypeScript utility that automatically checks your apartment building’s
 
 If a slot opens up, it sends you an email notification so you can book it.
 
-The script will also check if you have any current bookings. If so the day before your booking a reminder email will be sent to make sure you know you have a booking the following day.
+The script will also check if you have any current bookings. If so the day of your booking a reminder email will be sent to make sure you remember it.
 
 This script is designed to run automatically on a Raspberry Pi using a cron job, making it a set-and-forget sauna slot watcher.
 
