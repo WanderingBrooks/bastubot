@@ -21,6 +21,11 @@ if (!SAUNA_URL) {
   throw new Error('Sauna url is required');
 }
 
+/**
+ * Get current day of the week as 0 (Monday) to 6 (Sunday)
+ */
+const getCurrentDayOfTheWeek = () => (new Date().getDay() + 6) % 7;
+
 const getDateToCheck = ({ week }: { week: Week }) => {
   if (week === 'thisWeek') {
     return new Date().toISOString().split('T')[0];
@@ -29,15 +34,12 @@ const getDateToCheck = ({ week }: { week: Week }) => {
   if (week === 'nextWeek') {
     const nextWeekMonday = new Date();
 
-    const currentDayAmerican = nextWeekMonday.getDay();
-
-    const currentDayNormal =
-      currentDayAmerican === 0 ? 6 : currentDayAmerican - 1;
+    const currentDay = getCurrentDayOfTheWeek();
 
     nextWeekMonday.setDate(
       // Add to the current date 7 - the current day of the week
       // so that we get into the next week
-      nextWeekMonday.getDate() + (7 - currentDayNormal),
+      nextWeekMonday.getDate() + (7 - currentDay),
     );
 
     return nextWeekMonday.toISOString().split('T')[0];
@@ -127,8 +129,8 @@ const checkSaunaAvailability = async ({ week }: { week: Week }) => {
   log(`extracted: ${JSON.stringify(slotStatuses, null, 2)}`);
 
   return {
-    dayOfTheWeek: new Date().getDay(),
     slots: slotStatuses,
+    dayOfTheWeek: getCurrentDayOfTheWeek(),
   };
 };
 
