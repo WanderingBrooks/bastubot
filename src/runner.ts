@@ -50,8 +50,9 @@ const run = async ({ week }: { week: Week }) => {
       // At the start of each day on the first check of the new day,
       // Look to see if the user has booked a slot today
       // and alert them if they have
+      week === 'thisWeek' &&
       previousRun &&
-      slotStatuses.dayOfTheWeek !== previousRun?.dayOfTheWeek
+      slotStatuses.dayOfTheWeek !== previousRun.dayOfTheWeek
     ) {
       const slotsUserHasBookedToday = slotStatuses.slots[
         slotStatuses.dayOfTheWeek
