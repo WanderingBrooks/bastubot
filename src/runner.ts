@@ -35,7 +35,13 @@ const getOpenSlots = (slotStatuses: SaunaStatuses) => {
   }, {});
 };
 
-const run = async ({ week }: { week: Week }) => {
+const run = async ({
+  week,
+  sendRunLogAsEmail = false,
+}: {
+  week: Week;
+  sendRunLogAsEmail?: boolean;
+}) => {
   log(`Running job with week: "${week}"`);
 
   const slotStatuses = await checkSaunaAvailability({ week });
@@ -94,7 +100,9 @@ const run = async ({ week }: { week: Week }) => {
     }
   }
 
-  return sendRunLog({ week });
+  if (sendRunLogAsEmail) {
+    return sendRunLog({ week });
+  }
 };
 
 export default run;
