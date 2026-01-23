@@ -42,14 +42,14 @@ See .env.example.
 
    ```
    # Check the current week for either open slots or slots that someone skipped
-    0,31 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkThisWeek.sh)
+    */5 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkThisWeek.sh)
     # Check next week for any slots that open
-    15,45 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkNextWeek.sh)
+    17,47 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkNextWeek.sh)
    ```
 
    - Why this schedule?
-     1. Runs every 30 minutes, offset for balance.
-     2. :31 minute mark catches skipped slots (released 30 min after no-shows).
+     1. Runs every 5 minutes for the current week. So we get updates quickly
+     2. Less frequently twice in the hour for next week as it's less important
      3. Limits requests to the booking app so requests don't get blocked.
 
 6. Logs will end up in `~/Desktop/bastubot/file.log`
