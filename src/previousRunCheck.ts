@@ -2,7 +2,7 @@ import path from 'path';
 import { readJsonFile, writeJsonFile } from './utils';
 
 import { Week, AvailableSlots } from './types';
-import { log } from 'console';
+import log from './log';
 import { SaunaStatuses } from './pageScraper';
 
 const getPreviousRunFileAndSaveNewContents = async ({
