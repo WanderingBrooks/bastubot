@@ -66,72 +66,82 @@ const checkSaunaAvailability = async ({ week }: { week: Week }) => {
 
   const page = await browser.newPage();
 
-  log('Opened new page');
+  try {
+    log('Opened new page');
 
-  // Go to login page
-  // Navigate the page to a URL
-  await page.goto(LOGIN_URL);
+    // Go to login page
+    // Navigate the page to a URL
+    await page.goto(LOGIN_URL);
 
-  log('Navigated to login url');
+    log('Navigated to login url');
 
-  // Type the username and password
-  await page.type('#UserName', EMAIL);
+    // Type the username and password
+    await page.type('#UserName', EMAIL);
 
-  log('Filled username');
+    log('Filled username');
 
-  await page.type('#Password', PASSWORD);
+    await page.type('#Password', PASSWORD);
 
-  log('Filled password');
+    log('Filled password');
 
-  // Click the login button
-  await page.click('#btnLogin');
+    // Click the login button
+    await page.click('#btnLogin');
 
-  log('Clicked login');
+    log('Clicked login');
 
-  // Wait for the login to succeed
-  await page.waitForSelector('.navigationElement');
+    // Wait for the login to succeed
+    await page.waitForSelector('.navigationElement');
 
-  log('Menu appeared after login');
+    log('Menu appeared after login');
 
-  const dateToCheck = getDateToCheck({ week });
+    const dateToCheck = getDateToCheck({ week });
 
-  // Navigate to the sauna booking page
-  await page.goto(`${SAUNA_URL}&passDate=${dateToCheck}`);
-  log(`Navigated to sauna url with date: "${dateToCheck}"`);
+    // Navigate to the sauna booking page
+    await page.goto(`${SAUNA_URL}&passDate=${dateToCheck}`);
+    log(`Navigated to sauna url with date: "${dateToCheck}"`);
 
-  const slotStatuses = await page.evaluate(() => {
-    const dayColumns = document.querySelectorAll('.dayColumn');
+    const slotStatuses = await page.evaluate(() => {
+      const dayColumns = document.querySelectorAll('.dayColumn');
 
-    const statusPerSlot = Array.from(dayColumns).reduce<Day[]>(
-      (reduced, column) => {
-        const children = column?.children;
+      const statusPerSlot = Array.from(dayColumns).reduce<Day[]>(
+        (reduced, column) => {
+          const children = column?.children;
 
-        const slotsWithStatus = Array.from(children)
-          // Filter our non timeslot items
-          .filter((child) => child.classList.contains('interval'))
-          .map((child) => ({
-            isBookedByCurrentUser: child.classList.contains('own'),
-            isAvailable: child.classList.contains('bookable'),
-            time: (
-              Array.from(child?.children)?.[0] as HTMLElement
-            )?.innerText?.replace('\n', ''),
-          }))
-          .filter((slot) => slot.time);
+          const slotsWithStatus = Array.from(children)
+            // Filter our non timeslot items
+            .filter((child) => child.classList.contains('interval'))
+            .map((child) => ({
+              isBookedByCurrentUser: child.classList.contains('own'),
+              isAvailable: child.classList.contains('bookable'),
+              time: (
+                Array.from(child?.children)?.[0] as HTMLElement
+              )?.innerText?.replace('\n', ''),
+            }))
+            .filter((slot) => slot.time);
 
-        return [...reduced, slotsWithStatus];
-      },
-      [],
-    );
+          return [...reduced, slotsWithStatus];
+        },
+        [],
+      );
 
-    return statusPerSlot;
-  });
+      return statusPerSlot;
+    });
 
-  log(`extracted: ${JSON.stringify(slotStatuses, null, 2)}`);
+    log(`extracted: ${JSON.stringify(slotStatuses, null, 2)}`);
 
-  return {
-    slots: slotStatuses,
-    dayOfTheWeek: getCurrentDayOfTheWeek(),
-  };
+    return {
+      slots: slotStatuses,
+      dayOfTheWeek: getCurrentDayOfTheWeek(),
+    };
+  } catch (error) {
+    log(`Error occurred during sauna availability check: ${error}`);
+
+    throw error;
+  } finally {
+    await browser.close();
+
+    log(`Closed browser`);
+  }
 };
 
 type SaunaStatuses = Awaited<ReturnType<typeof checkSaunaAvailability>>;

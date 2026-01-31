@@ -1,3 +1,4 @@
+import log, { setupLogger } from './log';
 import run from './runner';
 import { Week } from './types';
 
@@ -19,4 +20,11 @@ if (!week) {
   );
 }
 
-run({ week }).then(() => process.exit(0));
+setupLogger(week);
+
+run({ week })
+  .then(() => process.exit(0))
+  .catch((error) => {
+    log(`Error running sauna stalker: ${JSON.stringify({ week, error })}`);
+    process.exit(1);
+  });
