@@ -8,16 +8,18 @@
     "start": "node dist/index.js"
   },
   "devDependencies": {
-    "@types/nodemailer": "^6.4.17",
     "prettier": "^3.4.2",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "@types/nodemailer": "^7.0.9"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
-    "nodemailer": "^6.9.16",
-    "puppeteer": "^23.10.4"
+    "nodemailer": "^7.0.13",
+    "puppeteer": "^23.10.4",
+    "winston": "^3.19.0",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }
