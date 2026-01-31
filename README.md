@@ -44,7 +44,7 @@ See .env.example.
    # Check the current week for either open slots or slots that someone skipped
    0,10,20,30,40,50 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkThisWeek.sh)
    # Check next week for any slots that open
-   5,15,25,35,45,55 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkNextWeek.sh)sh)
+   5,15,25,35,45,55 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkNextWeek.sh)
    ```
 
    - Why this schedule?
