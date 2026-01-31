@@ -1,25 +1,10 @@
 import puppeteer from 'puppeteer';
 
 import log from './log';
+import { config } from './config';
 import { Day, Week } from './types';
 
-const { EMAIL, PASSWORD, LOGIN_URL, SAUNA_URL, IS_RASPBERRY_PI } = process.env;
-
-if (!LOGIN_URL) {
-  throw new Error('Login url is required');
-}
-
-if (!EMAIL) {
-  throw new Error('Email is required');
-}
-
-if (!PASSWORD) {
-  throw new Error('Password is required');
-}
-
-if (!SAUNA_URL) {
-  throw new Error('Sauna url is required');
-}
+const { email, password, loginUrl, saunaUrl, isRaspberryPi } = config.sauna;
 
 /**
  * Get current day of the week as 0 (Monday) to 6 (Sunday)
@@ -51,7 +36,7 @@ const getDateToCheck = ({ week }: { week: Week }) => {
 const checkSaunaAvailability = async ({ week }: { week: Week }) => {
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch(
-    IS_RASPBERRY_PI === 'true'
+    isRaspberryPi
       ? {
           headless: true,
           executablePath: '/usr/bin/chromium-browser',
@@ -71,16 +56,16 @@ const checkSaunaAvailability = async ({ week }: { week: Week }) => {
 
     // Go to login page
     // Navigate the page to a URL
-    await page.goto(LOGIN_URL);
+    await page.goto(loginUrl);
 
     log('Navigated to login url');
 
     // Type the username and password
-    await page.type('#UserName', EMAIL);
+    await page.type('#UserName', email);
 
     log('Filled username');
 
-    await page.type('#Password', PASSWORD);
+    await page.type('#Password', password);
 
     log('Filled password');
 
@@ -97,7 +82,7 @@ const checkSaunaAvailability = async ({ week }: { week: Week }) => {
     const dateToCheck = getDateToCheck({ week });
 
     // Navigate to the sauna booking page
-    await page.goto(`${SAUNA_URL}&passDate=${dateToCheck}`);
+    await page.goto(`${saunaUrl}&passDate=${dateToCheck}`);
     log(`Navigated to sauna url with date: "${dateToCheck}"`);
 
     const slotStatuses = await page.evaluate(() => {
