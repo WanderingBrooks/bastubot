@@ -1,6 +1,7 @@
 import log, { setupLogger } from './log';
 import run from './runner';
 import { Week } from './types';
+import './config'; // Import to validate env vars early
 
 const [rawWeek] = process.argv.slice(2);
 

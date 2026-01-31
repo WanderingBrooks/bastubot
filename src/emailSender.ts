@@ -1,53 +1,25 @@
 import nodemailer from 'nodemailer';
 
 import log, { fullRunLog } from './log';
+import { config } from './config';
 import { AvailableSlots, Slot, Week } from './types';
 
-const { EMAIL_SERVICE, EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASSWORD } =
-  process.env;
-
-if (
-  !EMAIL_SERVICE ||
-  !EMAIL_HOST ||
-  !EMAIL_PORT ||
-  !EMAIL_USER ||
-  !EMAIL_PASSWORD
-) {
-  throw new Error(
-    `Misconfigured email settings: ${JSON.stringify(
-      {
-        EMAIL_SERVICE,
-        EMAIL_HOST,
-        EMAIL_PORT,
-        EMAIL_USER,
-        EMAIL_PASSWORD,
-      },
-      null,
-      2,
-    )}`,
-  );
-}
-
-const emailPortAsNumber = Number.parseInt(EMAIL_PORT, 10);
-
-if (Number.isNaN(emailPortAsNumber)) {
-  throw new Error('EMAIL_PORT must be a parseable number');
-}
+const { service, host, port, user, password } = config.email;
 
 const transporter = nodemailer.createTransport({
-  service: EMAIL_SERVICE,
-  host: EMAIL_HOST,
-  port: emailPortAsNumber,
+  service,
+  host,
+  port,
   secure: true,
   auth: {
-    user: EMAIL_USER,
-    pass: EMAIL_PASSWORD,
+    user,
+    pass: password,
   },
 });
 
 const mailOptions = {
-  from: EMAIL_USER,
-  to: EMAIL_USER,
+  from: user,
+  to: user,
 };
 
 const daysOfTheWeek = [
