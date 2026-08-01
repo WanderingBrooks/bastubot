@@ -27,7 +27,7 @@ run({ week })
   .then(() => process.exit(0))
   .catch((error) => {
     log(
-      `Error running sauna stalker: ${JSON.stringify({
+      `Error running bastubot: ${JSON.stringify({
         week,
         error: error instanceof Error ? error.stack ?? error.message : error,
       })}`,
