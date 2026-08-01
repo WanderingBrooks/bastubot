@@ -17,7 +17,7 @@ const log = (message: string) => {
 };
 
 const setupLogger = (week: string) => {
-  const weekLogDir = path.join(os.homedir(), 'logs', 'sauna-stalker', week);
+  const weekLogDir = path.join(os.homedir(), 'logs', 'bastubot', week);
 
   fs.mkdirSync(weekLogDir, { recursive: true });
 
