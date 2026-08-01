@@ -4,7 +4,8 @@ import log from './log';
 import { config } from './config';
 import { Day, Week } from './types';
 
-const { email, password, loginUrl, saunaUrl, isRaspberryPi } = config.sauna;
+const { email, password, loginUrl, saunaUrl, headlessChromiumPath } =
+  config.sauna;
 
 /**
  * Get current day of the week as 0 (Monday) to 6 (Sunday)
@@ -34,12 +35,18 @@ const getDateToCheck = ({ week }: { week: Week }) => {
 };
 
 const checkSaunaAvailability = async ({ week }: { week: Week }) => {
+  log(
+    headlessChromiumPath
+      ? `Launching headless Chromium at "${headlessChromiumPath}"`
+      : 'Launching non-headless Chromium (HEADLESS_CHROMIUM_PATH not set)',
+  );
+
   // Launch the browser and open a new blank page
   const browser = await puppeteer.launch(
-    isRaspberryPi
+    headlessChromiumPath
       ? {
           headless: true,
-          executablePath: '/usr/bin/chromium-browser',
+          executablePath: headlessChromiumPath,
           args: ['--no-sandbox', '--disable-setuid-sandbox'],
         }
       : {
