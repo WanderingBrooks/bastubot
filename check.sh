@@ -8,4 +8,4 @@ set -a  # Automatically export variables
 source "$SCRIPT_DIR/.env"
 set +a  # Disable automatic export
 
-$(which node) $SCRIPT_DIR/dist/index.js 'thisWeek'
+$(which node) $SCRIPT_DIR/dist/index.js

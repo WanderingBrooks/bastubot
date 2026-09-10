@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import path from 'path';
+import os from 'os';
 
 interface Config {
   sauna: {
@@ -15,6 +17,10 @@ interface Config {
     user: string;
     password: string;
   };
+  paths: {
+    stateDir: string;
+    logDir: string;
+  };
 }
 
 const {
@@ -28,6 +34,8 @@ const {
   EMAIL_PORT,
   EMAIL_USER,
   EMAIL_PASSWORD,
+  STATE_DIR,
+  LOG_DIR,
 } = process.env;
 
 if (!EMAIL) {
@@ -92,5 +100,9 @@ export const config: Config = {
     port,
     user: EMAIL_USER,
     password: EMAIL_PASSWORD,
+  },
+  paths: {
+    stateDir: STATE_DIR ?? path.resolve(__dirname, '..'),
+    logDir: LOG_DIR ?? path.join(os.homedir(), 'logs', 'bastubot'),
   },
 };

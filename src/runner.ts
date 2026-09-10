@@ -1,9 +1,5 @@
 import { checkSaunaAvailability, SaunaStatuses } from './pageScraper';
-import {
-  alertSaunaAvailability,
-  alertUserBookingToday,
-  sendRunLog,
-} from './emailSender';
+import { alertSaunaAvailability, alertUserBookingToday } from './emailSender';
 import {
   getPreviousRunFileAndSaveNewContents,
   compareResultWithPreviousRun,
@@ -33,73 +29,73 @@ const getOpenSlots = (slotStatuses: SaunaStatuses) => {
   }, {});
 };
 
-const run = async ({
+const processWeek = async ({
   week,
-  sendRunLogAsEmail = false,
+  slotStatuses,
 }: {
   week: Week;
-  sendRunLogAsEmail?: boolean;
+  slotStatuses: SaunaStatuses;
 }) => {
-  log(`Running job with week: "${week}"`);
+  log(`Processing results for week: "${week}"`);
 
-  const slotStatuses = await checkSaunaAvailability({ week });
+  const previousRun = await getPreviousRunFileAndSaveNewContents({
+    week,
+    slotStatuses,
+  });
 
-  if (slotStatuses) {
-    const previousRun = await getPreviousRunFileAndSaveNewContents({
-      week,
-      slotStatuses,
-    });
+  if (
+    // At the start of each day on the first check of the new day,
+    // Look to see if the user has booked a slot today
+    // and alert them if they have
+    week === 'thisWeek' &&
+    previousRun &&
+    slotStatuses.dayOfTheWeek !== previousRun.dayOfTheWeek
+  ) {
+    const slotsUserHasBookedToday = slotStatuses.slots[
+      slotStatuses.dayOfTheWeek
+    ].filter((slot) => slot.isBookedByCurrentUser);
 
-    if (
-      // At the start of each day on the first check of the new day,
-      // Look to see if the user has booked a slot today
-      // and alert them if they have
-      week === 'thisWeek' &&
-      previousRun &&
-      slotStatuses.dayOfTheWeek !== previousRun.dayOfTheWeek
-    ) {
-      const slotsUserHasBookedToday = slotStatuses.slots[
-        slotStatuses.dayOfTheWeek
-      ].filter((slot) => slot.isBookedByCurrentUser);
+    if (slotsUserHasBookedToday.length > 0) {
+      log(
+        `User has bookings today (${slotStatuses.dayOfTheWeek}), alerting them.`,
+      );
 
-      if (slotsUserHasBookedToday.length > 0) {
-        log(
-          `User has bookings today (${slotStatuses.dayOfTheWeek}), alerting them.`,
-        );
-
-        await alertUserBookingToday({
-          slotsUserHasBookedToday,
-        });
-      }
-    }
-
-    // Get all open slots for 18:00-20:00 and 20:00-22:00
-    const openSixOrEightSlots = getOpenSlots(slotStatuses);
-
-    // Get all open slots for 18:00-20:00 and 20:00-22:00 in previous run
-    const openSixOrEightSlotsInPreviousRun =
-      previousRun && getOpenSlots(previousRun);
-
-    // Filter out any slots we knew about before.
-    const slotsFilteredByPreviousRun = await compareResultWithPreviousRun({
-      openSixOrEightSlots,
-      openSixOrEightSlotsInPreviousRun,
-    });
-
-    // If there are any new slots to alert about, email the user
-    // letting know there is an available slot.
-    if (Object.keys(slotsFilteredByPreviousRun).length > 0) {
-      await alertSaunaAvailability({
-        week,
-        openSixOrEightSlots: slotsFilteredByPreviousRun,
+      await alertUserBookingToday({
+        slotsUserHasBookedToday,
       });
-    } else {
-      log('Ending process, nothing to alert');
     }
   }
 
-  if (sendRunLogAsEmail) {
-    return sendRunLog({ week });
+  // Get all open slots for 18:00-20:00 and 20:00-22:00
+  const openSixOrEightSlots = getOpenSlots(slotStatuses);
+
+  // Get all open slots for 18:00-20:00 and 20:00-22:00 in previous run
+  const openSixOrEightSlotsInPreviousRun =
+    previousRun && getOpenSlots(previousRun);
+
+  // Filter out any slots we knew about before.
+  const slotsFilteredByPreviousRun = await compareResultWithPreviousRun({
+    openSixOrEightSlots,
+    openSixOrEightSlotsInPreviousRun,
+  });
+
+  // If there are any new slots to alert about, email the user
+  // letting know there is an available slot.
+  if (Object.keys(slotsFilteredByPreviousRun).length > 0) {
+    await alertSaunaAvailability({
+      week,
+      openSixOrEightSlots: slotsFilteredByPreviousRun,
+    });
+  } else {
+    log('Ending process, nothing to alert');
+  }
+};
+
+const run = async () => {
+  const statusesByWeek = await checkSaunaAvailability();
+
+  for (const week of Object.keys(statusesByWeek) as Week[]) {
+    await processWeek({ week, slotStatuses: statusesByWeek[week] });
   }
 };
 
