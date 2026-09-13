@@ -44,18 +44,6 @@ const getHeader = ({ week }: { week: Week }) => {
   return `Got a weird week in [getHeader]: "${week}"`;
 };
 
-const getLogHeader = ({ week }: { week: Week }) => {
-  if (week === 'thisWeek') {
-    return `This week check log`;
-  }
-
-  if (week === 'nextWeek') {
-    return `Next week check log`;
-  }
-
-  return `Got a weird week in [getLogHeader]: "${week}"`;
-};
-
 const prepareSlotsForEmail = ({
   openSixOrEightSlots,
 }: {
@@ -123,11 +111,11 @@ const alertUserBookingToday = ({
     });
 };
 
-const sendRunLog = ({ week }: { week: Week }) =>
+const sendRunLog = () =>
   transporter.sendMail({
     ...mailOptions,
     text: fullRunLog,
-    subject: getLogHeader({ week }),
+    subject: 'Bastubot run failed',
   });
 
 export { alertSaunaAvailability, alertUserBookingToday, sendRunLog };
