@@ -2,12 +2,10 @@ import puppeteer, { Page } from 'puppeteer';
 
 import log from './log';
 import { config } from './config';
-import { Day, Week } from './types';
+import { Day, Week, weeks } from './types';
 
 const { email, password, loginUrl, saunaUrl, headlessChromiumPath } =
   config.sauna;
-
-const weeks: Week[] = ['thisWeek', 'nextWeek'];
 
 /**
  * Get current day of the week as 0 (Monday) to 6 (Sunday)

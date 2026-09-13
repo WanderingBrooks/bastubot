@@ -4,7 +4,7 @@ import {
   getPreviousRunFileAndSaveNewContents,
   compareResultWithPreviousRun,
 } from './previousRunCheck';
-import { Week, AvailableSlots } from './types';
+import { Week, AvailableSlots, weeks } from './types';
 import log from './log';
 
 const getOpenSlots = (slotStatuses: SaunaStatuses) => {
@@ -94,7 +94,7 @@ const processWeek = async ({
 const run = async () => {
   const statusesByWeek = await checkSaunaAvailability();
 
-  for (const week of Object.keys(statusesByWeek) as Week[]) {
+  for (const week of weeks) {
     await processWeek({ week, slotStatuses: statusesByWeek[week] });
   }
 };
