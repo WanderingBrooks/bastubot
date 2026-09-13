@@ -1,6 +1,6 @@
 import log, { setupLogger } from './log';
 import run from './runner';
-import { sendRunLog } from './emailSender';
+import { sendErrorLog } from './emailSender';
 import './config'; // Import to validate env vars early
 
 setupLogger();
@@ -15,7 +15,7 @@ run()
     );
 
     try {
-      await sendRunLog();
+      await sendErrorLog();
     } catch (emailError) {
       log(`Failed to send failure alert email: ${emailError}`);
     }

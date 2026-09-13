@@ -111,11 +111,11 @@ const alertUserBookingToday = ({
     });
 };
 
-const sendRunLog = () =>
+const sendErrorLog = () =>
   transporter.sendMail({
     ...mailOptions,
     text: fullRunLog,
     subject: 'Bastubot run failed',
   });
 
-export { alertSaunaAvailability, alertUserBookingToday, sendRunLog };
+export { alertSaunaAvailability, alertUserBookingToday, sendErrorLog };
