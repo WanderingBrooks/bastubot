@@ -1,0 +1,25 @@
+# dependencies
+node_modules
+
+# build output — rebuilt fresh in the builder stage
+dist
+
+# env files — never bake secrets into the image; runtime env comes from
+# --env-file/compose
+.env
+.env.*
+
+# git
+.git
+.gitignore
+
+# docker
+Dockerfile
+.dockerignore
+
+# state/logs from local runs
+*-previousRun.json
+*.log
+
+# misc
+.vscode
