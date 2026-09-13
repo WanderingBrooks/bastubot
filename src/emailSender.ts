@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-import log, { fullRunLog } from './log';
+import log, { getFullRunLog } from './log';
 import { config } from './config';
 import { AvailableSlots, Slot, Week } from './types';
 
@@ -42,18 +42,6 @@ const getHeader = ({ week }: { week: Week }) => {
   }
 
   return `Got a weird week in [getHeader]: "${week}"`;
-};
-
-const getLogHeader = ({ week }: { week: Week }) => {
-  if (week === 'thisWeek') {
-    return `This week check log`;
-  }
-
-  if (week === 'nextWeek') {
-    return `Next week check log`;
-  }
-
-  return `Got a weird week in [getLogHeader]: "${week}"`;
 };
 
 const prepareSlotsForEmail = ({
@@ -123,11 +111,11 @@ const alertUserBookingToday = ({
     });
 };
 
-const sendRunLog = ({ week }: { week: Week }) =>
+const sendErrorLog = () =>
   transporter.sendMail({
     ...mailOptions,
-    text: fullRunLog,
-    subject: getLogHeader({ week }),
+    text: getFullRunLog(),
+    subject: 'Bastubot run failed',
   });
 
-export { alertSaunaAvailability, alertUserBookingToday, sendRunLog };
+export { alertSaunaAvailability, alertUserBookingToday, sendErrorLog };
