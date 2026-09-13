@@ -4,6 +4,10 @@ import path from 'path';
 import fs from 'fs';
 import { config } from './config';
 
+// Never reset - safe only because every deployment path (cron, docker
+// compose run --rm) starts a fresh process per run, and index.ts always
+// calls process.exit() right after run() finishes. Would need an explicit
+// reset if bastubot ever became a long-running process instead.
 let fullRunLog = '';
 
 const logDir = config.paths.logDir;
@@ -36,5 +40,7 @@ const log = (message: string) => {
   logger.info(message);
 };
 
+const getFullRunLog = () => fullRunLog;
+
 export default log;
-export { fullRunLog };
+export { getFullRunLog };

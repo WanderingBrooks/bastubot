@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-import log, { fullRunLog } from './log';
+import log, { getFullRunLog } from './log';
 import { config } from './config';
 import { AvailableSlots, Slot, Week } from './types';
 
@@ -114,7 +114,7 @@ const alertUserBookingToday = ({
 const sendErrorLog = () =>
   transporter.sendMail({
     ...mailOptions,
-    text: fullRunLog,
+    text: getFullRunLog(),
     subject: 'Bastubot run failed',
   });
 
