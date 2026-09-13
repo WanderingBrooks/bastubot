@@ -21,7 +21,7 @@ See .env.example.
 
 ## Run
 
-1. `npm run dev thisWeek` or `npm run dev nextWeek`
+1. `npm run dev` — checks both this week and next week in one run
 
 ## Build
 
@@ -34,23 +34,20 @@ See .env.example.
 2. Install packages `npm install`
 3. Build `npm run build`
 4. Open crontab `crontab -e`
-5. Add your a line that will run this job. `* * * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkThisWeek.sh)`
+5. Add a line that will run this job. `* * * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/check.sh)`
 
-   - You can control which week is checked either this week or next week by calling the corresponding script `checkThisWeek.sh` or `checkNextWeek.sh`.
+   - Each run checks both this week and next week in a single browser
+     session (one login covers both).
 
-   - For example I currently the following
+   - For example I currently use the following:
 
    ```
-   # Check the current week for either open slots or slots that someone skipped
-   0,10,20,30,40,50 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkThisWeek.sh)
-   # Check next week for any slots that open
-   5,15,25,35,45,55 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/checkNextWeek.sh)
+   0,10,20,30,40,50 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/check.sh)
    ```
 
    - Why this schedule?
-     1. Runs every 5 minutes to check either the current week or next week. So we get updates quickly
-     2. Alternates between current and next week so cover them equally.
-     3. Limits requests to the booking app so requests don't get blocked.
+     1. Runs every 10 minutes so we get updates quickly.
+     2. Limits requests to the booking app so requests don't get blocked.
 
 6. Logs will end up in `~/logs/bastubot`
 

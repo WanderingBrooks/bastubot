@@ -3,6 +3,7 @@ import { readJsonFile, writeJsonFile } from './utils';
 
 import { Week, AvailableSlots } from './types';
 import log from './log';
+import { config } from './config';
 import { SaunaStatuses } from './pageScraper';
 
 const getPreviousRunFileAndSaveNewContents = async ({
@@ -12,9 +13,9 @@ const getPreviousRunFileAndSaveNewContents = async ({
   week: Week;
   slotStatuses: SaunaStatuses;
 }) => {
-  const previousRunFilePath = path.resolve(
-    __dirname,
-    `../${week}-previousRun.json`,
+  const previousRunFilePath = path.join(
+    config.paths.stateDir,
+    `${week}-previousRun.json`,
   );
 
   const previousRun = (await readJsonFile(
