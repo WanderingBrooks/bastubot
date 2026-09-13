@@ -1,9 +1,7 @@
-import log, { setupLogger } from './log';
+import log from './log';
 import run from './runner';
 import { sendErrorLog } from './emailSender';
 import './config'; // Import to validate env vars early
-
-setupLogger();
 
 run()
   .then(() => process.exit(0))
