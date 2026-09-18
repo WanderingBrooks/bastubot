@@ -38,9 +38,9 @@ const scrapeWeek = async ({ page, week }: { page: Page; week: Week }) => {
   const dateToCheck = getDateToCheck({ week });
 
   // Navigate to the sauna booking page. domcontentloaded rather than the
-  // default 'load' - the scraped elements are in the initial HTML, and
-  // waiting for every last resource (analytics, ads, etc.) to finish
-  // caused spurious 30s timeouts even when the page was fully usable.
+  // default 'load' - the scraped elements are in the initial HTML, so
+  // there's no need to wait on unrelated resources (analytics, ads, etc.)
+  // that 'load' would also wait for.
   await page.goto(`${saunaUrl}&passDate=${dateToCheck}`, {
     waitUntil: 'domcontentloaded',
   });
