@@ -37,8 +37,13 @@ const getDateToCheck = ({ week }: { week: Week }) => {
 const scrapeWeek = async ({ page, week }: { page: Page; week: Week }) => {
   const dateToCheck = getDateToCheck({ week });
 
-  // Navigate to the sauna booking page
-  await page.goto(`${saunaUrl}&passDate=${dateToCheck}`);
+  // Navigate to the sauna booking page. Wait for domcontentloaded rather than
+  // the default 'load'. The scraped elements are in the initial HTML, so
+  // there's no need to wait on unrelated resources (analytics, ads, etc.)
+  // that 'load' would also wait for.
+  await page.goto(`${saunaUrl}&passDate=${dateToCheck}`, {
+    waitUntil: 'domcontentloaded',
+  });
   log(`Navigated to sauna url with date: "${dateToCheck}"`);
 
   const slotStatuses = await page.evaluate(() => {
@@ -107,7 +112,7 @@ const checkSaunaAvailability = async () => {
 
     // Go to login page
     // Navigate the page to a URL
-    await page.goto(loginUrl);
+    await page.goto(loginUrl, { waitUntil: 'domcontentloaded' });
 
     log('Navigated to login url');
 
