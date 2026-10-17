@@ -2,10 +2,13 @@
 
 ################################################################################
 # builder — full npm install (tsc needs the typescript peerDependency),
-# compile src/ to dist/.
+# compile src/ to dist/. Nothing here launches a browser, so puppeteer's
+# postinstall skips its download.
 ################################################################################
 FROM node:22-slim AS builder
 WORKDIR /app
+
+ENV PUPPETEER_SKIP_DOWNLOAD=true
 
 COPY package.json package-lock.json ./
 RUN npm ci
@@ -20,8 +23,8 @@ RUN npm run build
 # at runtime here (not just build time), so this stage keeps Chromium and
 # node_modules, unlike a fully static output.
 #
-# PUPPETEER_SKIP_CHROMIUM_DOWNLOAD stops puppeteer's own postinstall from
-# also pulling a bundled Chromium — apt's chromium package pulls its own
+# PUPPETEER_SKIP_DOWNLOAD stops puppeteer's own postinstall from also
+# pulling its bundled Chrome builds — apt's chromium package pulls its own
 # correct dependency set, more reliable than manually enumerating
 # puppeteer's ~15 required shared libs. HEADLESS_CHROMIUM_PATH is the
 # app's existing escape hatch (feature/move-chromium-path-to-env) for
@@ -30,7 +33,7 @@ RUN npm run build
 FROM node:22-slim
 WORKDIR /app
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+ENV PUPPETEER_SKIP_DOWNLOAD=true \
     HEADLESS_CHROMIUM_PATH=/usr/bin/chromium
 
 RUN apt-get update \
