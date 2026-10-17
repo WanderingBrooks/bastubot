@@ -7,7 +7,7 @@ run()
   .catch((error) => {
     log(
       `Error running bastubot: ${JSON.stringify({
-        error: error instanceof Error ? error.stack ?? error.message : error,
+        error: error instanceof Error ? (error.stack ?? error.message) : error,
       })}`,
     );
 
