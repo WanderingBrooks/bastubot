@@ -13,12 +13,11 @@ const required = (name: string) => {
 const saunaUrl = required('SAUNA_URL');
 
 export const config = {
-  aptus: {
-    username: required('APTUS_USERNAME'),
-    password: required('APTUS_PASSWORD'),
+  bookingSite: {
+    username: required('SAUNA_USERNAME'),
+    password: required('SAUNA_PASSWORD'),
     saunaUrl,
-    // The login page lives on the same portal as the sauna calendar
-    // (.../AptusPortal/CustomerBooking/BookingCalendar -> .../AptusPortal/Account/Login)
+    // The login page is on the same site as the sauna calendar
     loginUrl: new URL('../Account/Login', saunaUrl).toString(),
   },
   gmail: {

@@ -10,7 +10,7 @@ export type Slot = {
   isBookedByMe: boolean;
 };
 
-const { username, password, saunaUrl, loginUrl } = config.aptus;
+const { username, password, saunaUrl, loginUrl } = config.bookingSite;
 
 // Just enough of a cookie jar to carry the session between requests. fetch
 // follows redirects on its own but drops the cookies set along the way, so
@@ -100,7 +100,7 @@ export const login = async () => {
   });
 
   if (!cookies.has('.ASPXAUTH')) {
-    throw new Error('Login failed, check APTUS_USERNAME and APTUS_PASSWORD');
+    throw new Error('Login failed, check SAUNA_USERNAME and SAUNA_PASSWORD');
   }
 };
 

@@ -2,7 +2,7 @@ import nodemailer from 'nodemailer';
 
 import { config } from './config';
 import { formatDay } from './dates';
-import { Slot } from './aptus';
+import { Slot } from './bookingSite';
 
 const { user, appPassword } = config.gmail;
 

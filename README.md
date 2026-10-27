@@ -6,7 +6,7 @@ A small TypeScript job that checks an apartment building's sauna booking calenda
 
 Each run:
 
-1. Logs in to Aptus and fetches this week's and next week's calendar.
+1. Logs in and fetches this week's and next week's calendar.
 2. Emails you any 18:00–20:00 or 20:00–22:00 slot that's open now but wasn't on the last run.
 3. On the first run of the day, emails you a reminder if you have the sauna booked today.
 

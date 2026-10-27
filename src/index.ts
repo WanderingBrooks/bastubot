@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 import { config } from './config';
-import { getWeek, login, Slot } from './aptus';
+import { getWeek, login, Slot } from './bookingSite';
 import { addDays, today } from './dates';
 import { sendBookingReminder, sendNewSlots } from './email';
 
