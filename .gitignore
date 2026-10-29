@@ -1,5 +1,4 @@
 .env
 node_modules
 dist
-nextWeek-previousRun.json
-thisWeek-previousRun.json
+state.json

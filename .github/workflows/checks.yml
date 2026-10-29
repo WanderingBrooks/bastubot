@@ -20,11 +20,6 @@ jobs:
     # from a fork would run a stranger's code on the homelab
     runs-on: ubuntu-latest
 
-    # Nothing here launches a browser, so skip puppeteer's Chromium download
-    # during npm ci
-    env:
-      PUPPETEER_SKIP_DOWNLOAD: true
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4

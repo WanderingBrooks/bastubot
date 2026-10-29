@@ -17,9 +17,8 @@ dist
 Dockerfile
 .dockerignore
 
-# state/logs from local runs
-*-previousRun.json
-*.log
+# state from local runs
+state.json
 
 # misc
 .vscode

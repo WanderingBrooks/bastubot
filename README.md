@@ -2,55 +2,35 @@
 
 Bastu (Swedish for sauna).
 
-A small TypeScript utility that automatically checks your apartment building’s sauna booking calendar for any available slots in the next two weeks. This utility is written for the Aptus app provided by Säkerhetsintergrering.
+A small TypeScript job that checks an apartment building's sauna booking calendar in the Aptus portal (by Säkerhetsintegrering) and emails you when an evening slot opens up.
 
-If a slot opens up, it sends you an email notification so you can book it.
+Each run:
 
-The script will also check if you have any current bookings. If so the day of your booking a reminder email will be sent to make sure you remember it.
+1. Logs in and fetches this week's and next week's calendar.
+2. Emails you any 18:00–20:00 or 20:00–22:00 slot that's open now but wasn't on the last run.
+3. On the first run of the day, emails you a reminder if you have the sauna booked today.
 
-This script is designed to run automatically on a Raspberry Pi using a cron job, making it a set-and-forget sauna slot watcher.
+It runs once and exits, non-zero on failure. Scheduling it is up to whatever runs it. In production that's a systemd timer running the Docker image, see [homelab-docker-compose](https://github.com/WanderingBrooks/homelab-docker-compose).
 
-## Install
+## Setup
 
 1. `nvm use`
 2. `npm install`
-
-## Environment variables
-
-See .env.example.
+3. Copy `.env.example` to `.env` and fill it in.
 
 ## Run
 
-1. `npm run dev` — checks both this week and next week in one run
+`npm run dev` builds and runs once, reading `.env`. State is kept in `state.json` (in the repo root unless `STATE_DIR` is set).
 
-## Build
+Deleting `state.json` makes the next run treat every open slot as new.
 
-1. `npm run build`
-2. `npm run start`
+## Docker
 
-## Setup on a raspberry pi
-
-1. Install chromium `sudo apt install chromium-browser chromium-codecs-ffmpeg`
-2. Install packages `npm install`
-3. Build `npm run build`
-4. Open crontab `crontab -e`
-5. Add a line that will run this job. `* * * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/check.sh)`
-
-   - Each run checks both this week and next week in a single browser
-     session (one login covers both).
-
-   - For example I currently use the following:
-
-   ```
-   0,10,20,30,40,50 7-22 * * * (. ~/Desktop/bastubot/cronjob.env.sh; ~/Desktop/bastubot/check.sh)
-   ```
-
-   - Why this schedule?
-     1. Runs every 10 minutes so we get updates quickly.
-     2. Limits requests to the booking app so requests don't get blocked.
-
-6. Logs will end up in `~/logs/bastubot`
+```
+docker build -t bastubot:latest .
+docker run --rm --env-file .env bastubot:latest
+```
 
 ## Email sending
 
-I currenlty use Gmail to send emails from and to the same email. This was quite easy to setup and works quite well. I followed [this guide](https://archive.ph/x3R1S).
+Alerts are sent from a Gmail account to itself, using an [app password](https://myaccount.google.com/apppasswords).
