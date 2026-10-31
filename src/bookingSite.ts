@@ -25,6 +25,8 @@ const request = async (
   const response = await fetch(url, {
     ...init,
     redirect: 'manual',
+    // Without this a stalled response can hold up the run for minutes
+    signal: AbortSignal.timeout(30_000),
     headers: {
       ...init.headers,
       cookie: [...cookies]
@@ -109,8 +111,8 @@ export const login = async () => {
     await attemptLogin();
   } catch (error) {
     // The portal now and then redirect-loops a fresh visitor between its
-    // login and error pages. A clean second attempt a few seconds later gets
-    // through.
+    // login and error pages. The loop seems to be brief, so a clean second
+    // attempt a few seconds later might get through.
     console.warn('Login failed, retrying once:', error);
     cookies.clear();
     await new Promise((resolve) => setTimeout(resolve, 5000));
