@@ -25,6 +25,8 @@ const request = async (
   const response = await fetch(url, {
     ...init,
     redirect: 'manual',
+    // Without this a stalled response can hold up the run for minutes
+    signal: AbortSignal.timeout(30_000),
     headers: {
       ...init.headers,
       cookie: [...cookies]
@@ -65,7 +67,7 @@ const encodePassword = (salt: number) =>
     .map((c) => String.fromCharCode(salt ^ c.charCodeAt(0)))
     .join('');
 
-export const login = async () => {
+const attemptLogin = async () => {
   // The first visit only sets a session cookie and redirects away. The
   // second, carrying that cookie, gets the actual login form.
   await request(loginUrl);
@@ -101,6 +103,20 @@ export const login = async () => {
 
   if (!cookies.has('.ASPXAUTH')) {
     throw new Error('Login failed, check SAUNA_USERNAME and SAUNA_PASSWORD');
+  }
+};
+
+export const login = async () => {
+  try {
+    await attemptLogin();
+  } catch (error) {
+    // The portal now and then redirect-loops a fresh visitor between its
+    // login and error pages. The loop seems to be brief, so a clean second
+    // attempt a few seconds later might get through.
+    console.warn('Login failed, retrying once:', error);
+    cookies.clear();
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await attemptLogin();
   }
 };
 
