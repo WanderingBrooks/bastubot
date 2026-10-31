@@ -65,7 +65,7 @@ const encodePassword = (salt: number) =>
     .map((c) => String.fromCharCode(salt ^ c.charCodeAt(0)))
     .join('');
 
-export const login = async () => {
+const attemptLogin = async () => {
   // The first visit only sets a session cookie and redirects away. The
   // second, carrying that cookie, gets the actual login form.
   await request(loginUrl);
@@ -101,6 +101,20 @@ export const login = async () => {
 
   if (!cookies.has('.ASPXAUTH')) {
     throw new Error('Login failed, check SAUNA_USERNAME and SAUNA_PASSWORD');
+  }
+};
+
+export const login = async () => {
+  try {
+    await attemptLogin();
+  } catch (error) {
+    // The portal now and then redirect-loops a fresh visitor between its
+    // login and error pages. A clean second attempt a few seconds later gets
+    // through.
+    console.warn('Login failed, retrying once:', error);
+    cookies.clear();
+    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await attemptLogin();
   }
 };
 
