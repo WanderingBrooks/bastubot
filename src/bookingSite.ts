@@ -19,6 +19,9 @@ const { username, password, saunaUrl, loginUrl } = config.bookingSite;
 // redirects are followed by hand here.
 const cookies = new Map<string, string>();
 
+// The cookie the portal sets on a successful login
+const AUTH_COOKIE = '.ASPXAUTH';
+
 class LoggedOutError extends Error {}
 
 const request = async (
@@ -105,7 +108,7 @@ const attemptLogin = async () => {
     }),
   });
 
-  if (!cookies.has('.ASPXAUTH')) {
+  if (!cookies.has(AUTH_COOKIE)) {
     throw new Error('Login failed, check SAUNA_USERNAME and SAUNA_PASSWORD');
   }
 };
@@ -139,7 +142,7 @@ export const withSession = async <T>(work: () => Promise<T>): Promise<T> => {
     // No saved session yet, or an unreadable one: just log in
   }
 
-  if (cookies.has('.ASPXAUTH')) {
+  if (cookies.has(AUTH_COOKIE)) {
     try {
       const result = await work();
       console.log('Reused the saved session');
@@ -160,7 +163,7 @@ export const withSession = async <T>(work: () => Promise<T>): Promise<T> => {
   cookies.clear();
   await login();
   console.log('Logged in');
-  // The file holds the .ASPXAUTH cookie, which logs anyone who has it into
+  // The file holds the auth cookie, which logs anyone who has it into
   // the account until the session expires. 0o600 (octal, like chmod 600)
   // makes it readable and writable by its owner only, where the default
   // would let every user on the machine read it. Only applies when the file
