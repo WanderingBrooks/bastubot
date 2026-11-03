@@ -160,7 +160,11 @@ export const withSession = async <T>(work: () => Promise<T>): Promise<T> => {
   cookies.clear();
   await login();
   console.log('Logged in');
-  // Holds the session token, so readable by this user only
+  // The file holds the .ASPXAUTH cookie, which logs anyone who has it into
+  // the account until the session expires. 0o600 (octal, like chmod 600)
+  // makes it readable and writable by its owner only, where the default
+  // would let every user on the machine read it. Only applies when the file
+  // is created; overwriting keeps its existing permissions.
   fs.writeFileSync(
     config.sessionFile,
     JSON.stringify(Object.fromEntries(cookies)),
