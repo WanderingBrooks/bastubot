@@ -19,6 +19,7 @@ Dockerfile
 
 # state from local runs
 state.json
+session.json
 
 # misc
 .vscode

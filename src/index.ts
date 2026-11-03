@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 
 import { config } from './config';
-import { getWeek, login, Slot } from './bookingSite';
+import { getWeek, Slot, withSession } from './bookingSite';
 import { addDays, today } from './dates';
 import { sendBookingReminder, sendNewSlots } from './email';
 
@@ -30,13 +30,10 @@ const main = async () => {
   const state = readState();
   const date = today();
 
-  await login();
-  console.log('Logged in');
-
-  const slots = [
+  const slots = await withSession(async () => [
     ...(await getWeek(date)),
     ...(await getWeek(addDays(date, 7))),
-  ];
+  ]);
   console.log(`Fetched ${slots.length} slots`);
 
   const open = slots.filter(

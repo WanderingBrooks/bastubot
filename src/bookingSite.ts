@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+
 import { parse } from 'node-html-parser';
 
 import { config } from './config';
@@ -16,6 +18,11 @@ const { username, password, saunaUrl, loginUrl } = config.bookingSite;
 // follows redirects on its own but drops the cookies set along the way, so
 // redirects are followed by hand here.
 const cookies = new Map<string, string>();
+
+// The cookie the portal sets on a successful login
+const AUTH_COOKIE = '.ASPXAUTH';
+
+class LoggedOutError extends Error {}
 
 const request = async (
   url: string | URL,
@@ -101,23 +108,73 @@ const attemptLogin = async () => {
     }),
   });
 
-  if (!cookies.has('.ASPXAUTH')) {
+  if (!cookies.has(AUTH_COOKIE)) {
     throw new Error('Login failed, check SAUNA_USERNAME and SAUNA_PASSWORD');
   }
 };
 
-export const login = async () => {
+const login = async () => {
   try {
     await attemptLogin();
   } catch (error) {
     // The portal now and then redirect-loops a fresh visitor between its
-    // login and error pages. The loop seems to be brief, so a clean second
-    // attempt a few seconds later might get through.
+    // login and error pages. Sometimes that clears within seconds, sometimes
+    // it lasts hours. A clean second attempt catches the short ones.
     console.warn('Login failed, retrying once:', error);
     cookies.clear();
     await new Promise((resolve) => setTimeout(resolve, 5000));
     await attemptLogin();
   }
+};
+
+/**
+ * Runs `work` with the session saved by an earlier run, logging in only when
+ * there is none or the portal has expired it. Sessions last about 90 minutes,
+ * so most runs skip the login.
+ */
+export const withSession = async <T>(work: () => Promise<T>): Promise<T> => {
+  try {
+    const saved = JSON.parse(fs.readFileSync(config.sessionFile, 'utf-8'));
+    Object.entries<string>(saved).forEach(([name, value]) =>
+      cookies.set(name, value),
+    );
+  } catch {
+    // No saved session yet, or an unreadable one: just log in
+  }
+
+  if (cookies.has(AUTH_COOKIE)) {
+    try {
+      const result = await work();
+      console.log('Reused the saved session');
+
+      return result;
+    } catch (error) {
+      if (!(error instanceof LoggedOutError)) {
+        // Not obviously a session problem, but don't trust this session
+        // again: the next run logs in fresh rather than getting stuck on it
+        fs.rmSync(config.sessionFile, { force: true });
+        throw error;
+      }
+
+      console.log('Saved session has expired');
+    }
+  }
+
+  cookies.clear();
+  await login();
+  console.log('Logged in');
+  // The file holds the auth cookie, which logs anyone who has it into
+  // the account until the session expires. 0o600 (octal, like chmod 600)
+  // makes it readable and writable by its owner only, where the default
+  // would let every user on the machine read it. Only applies when the file
+  // is created; overwriting keeps its existing permissions.
+  fs.writeFileSync(
+    config.sessionFile,
+    JSON.stringify(Object.fromEntries(cookies)),
+    { mode: 0o600 },
+  );
+
+  return work();
 };
 
 /**
@@ -127,7 +184,14 @@ export const getWeek = async (date: string): Promise<Slot[]> => {
   const url = new URL(saunaUrl);
   url.searchParams.set('passDate', date);
 
-  const page = parse(await (await request(url)).text());
+  const response = await request(url);
+
+  // A logged-out visitor gets redirected away from the calendar, to log in
+  if (new URL(response.url).pathname !== url.pathname) {
+    throw new LoggedOutError(`Not logged in, ended up at ${response.url}`);
+  }
+
+  const page = parse(await response.text());
   const days = page.querySelectorAll('.dayColumn');
 
   if (days.length !== 7) {
