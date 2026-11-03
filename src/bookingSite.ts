@@ -147,6 +147,9 @@ export const withSession = async <T>(work: () => Promise<T>): Promise<T> => {
       return result;
     } catch (error) {
       if (!(error instanceof LoggedOutError)) {
+        // Not obviously a session problem, but don't trust this session
+        // again: the next run logs in fresh rather than getting stuck on it
+        fs.rmSync(config.sessionFile, { force: true });
         throw error;
       }
 
