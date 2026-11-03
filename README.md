@@ -6,7 +6,7 @@ A small TypeScript job that checks an apartment building's sauna booking calenda
 
 Each run:
 
-1. Logs in and fetches this week's and next week's calendar.
+1. Fetches this week's and next week's calendar, reusing the last run's login session while the portal still accepts it.
 2. Emails you any 18:00–20:00 or 20:00–22:00 slot that's open now but wasn't on the last run.
 3. On the first run of the day, emails you a reminder if you have the sauna booked today.
 
@@ -20,7 +20,7 @@ It runs once and exits, non-zero on failure. Scheduling it is up to whatever run
 
 ## Run
 
-`npm run dev` builds and runs once, reading `.env`. State is kept in `state.json` (in the repo root unless `STATE_DIR` is set).
+`npm run dev` builds and runs once, reading `.env`. State is kept in `state.json` and the login session in `session.json` (both in the repo root unless `STATE_DIR` is set).
 
 Deleting `state.json` makes the next run treat every open slot as new.
 

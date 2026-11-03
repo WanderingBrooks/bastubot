@@ -11,6 +11,7 @@ const required = (name: string) => {
 };
 
 const saunaUrl = required('SAUNA_URL');
+const stateDir = process.env.STATE_DIR ?? path.resolve(__dirname, '..');
 
 export const config = {
   bookingSite: {
@@ -24,8 +25,6 @@ export const config = {
     user: required('GMAIL_USER'),
     appPassword: required('GMAIL_APP_PASSWORD'),
   },
-  stateFile: path.join(
-    process.env.STATE_DIR ?? path.resolve(__dirname, '..'),
-    'state.json',
-  ),
+  stateFile: path.join(stateDir, 'state.json'),
+  sessionFile: path.join(stateDir, 'session.json'),
 };
