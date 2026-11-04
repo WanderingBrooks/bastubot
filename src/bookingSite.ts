@@ -51,6 +51,11 @@ const request = async (
   const location = response.headers.get('location');
 
   if (location && response.status >= 300 && response.status < 400) {
+    // As with fetch, a caller asking for manual redirects gets the redirect
+    if (init.redirect === 'manual') {
+      return response;
+    }
+
     if (redirects >= 10) {
       throw new Error(`Too many redirects, last one to ${location}`);
     }
@@ -156,7 +161,7 @@ export const withSession = async <T>(work: () => Promise<T>): Promise<T> => {
         throw error;
       }
 
-      console.log('Saved session has expired');
+      console.log('Saved session was rejected, logging in again');
     }
   }
 
@@ -184,11 +189,15 @@ export const getWeek = async (date: string): Promise<Slot[]> => {
   const url = new URL(saunaUrl);
   url.searchParams.set('passDate', date);
 
-  const response = await request(url);
+  const response = await request(url, { redirect: 'manual' });
 
-  // A logged-out visitor gets redirected away from the calendar, to log in
-  if (new URL(response.url).pathname !== url.pathname) {
-    throw new LoggedOutError(`Not logged in, ended up at ${response.url}`);
+  // Any redirect away from the calendar means the session is no good, either
+  // a clean one to log in or the start of the portal's login/error loop.
+  // Checked before following it, so a loop also gets a fresh login.
+  if (response.status !== 200) {
+    throw new LoggedOutError(
+      `Not logged in, redirected to ${response.headers.get('location')}`,
+    );
   }
 
   const page = parse(await response.text());
