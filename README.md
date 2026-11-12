@@ -10,7 +10,7 @@ Each run:
 2. Emails you any 18:00–20:00 or 20:00–22:00 slot that's open now but wasn't on the last run.
 3. On the first run of the day, emails you a reminder if you have the sauna booked today.
 
-It runs once and exits, non-zero on failure. Scheduling it is up to whatever runs it. In production that's a systemd timer running the Docker image, see [homelab-docker-compose](https://github.com/WanderingBrooks/homelab-docker-compose).
+It runs once and exits, non-zero on failure. Scheduling it is up to whatever runs it.
 
 ## Setup
 
