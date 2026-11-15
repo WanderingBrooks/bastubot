@@ -16,8 +16,6 @@ concurrency:
 jobs:
   checks:
     name: Checks
-    # GitHub's runners, never the homelab one: the repo is public, so a PR
-    # from a fork would run a stranger's code on the homelab
     runs-on: ubuntu-latest
 
     steps:
